@@ -1,48 +1,36 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   :root {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
+    --background: 220 25% 10%;
+    --foreground: 220 15% 95%;
 
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
+    --card: 220 25% 15%;
+    --card-foreground: 220 15% 95%;
 
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 220 25% 15%;
+    --popover-foreground: 220 15% 95%;
 
-    --primary: 174 58% 40%;
-    --primary-foreground: 0 0% 98%;
+    --primary: 210 100% 50%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 217.2 32.6% 20%;
-    --secondary-foreground: 210 40% 98%;
+    --secondary: 220 20% 20%;
+    --secondary-foreground: 220 15% 95%;
 
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
+    --muted: 220 20% 20%;
+    --muted-foreground: 220 15% 65%;
 
-    --accent: 176 60% 47%;
-    --accent-foreground: 210 40% 98%;
+    --accent: 185 85% 45%;
+    --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 85% 60%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 176 60% 47%;
-
-    --radius: 0.5rem;
-
-    --sidebar-background: 217 24% 20%;
-    --sidebar-foreground: 210 40% 98%;
-    --sidebar-primary: 174 58% 40%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 217 24% 15%;
-    --sidebar-accent-foreground: 210 40% 98%;
-    --sidebar-border: 217 24% 15%;
-    --sidebar-ring: 176 60% 47%;
+    --border: 220 20% 20%;
+    --input: 220 20% 20%;
+    --ring: 210 100% 50%;
   }
 }
 
@@ -60,4 +48,26 @@
   .glass-card {
     @apply bg-secondary/50 backdrop-blur-sm border border-secondary/30;
   }
+}
+
+/* Typing animation */
+@keyframes blinkCursor {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0;
+  }
+}
+
+.typing-cursor {
+  display: inline-block;
+  width: 2px;
+  height: 1em;
+  vertical-align: text-bottom;
+  animation: blinkCursor 0.8s infinite;
+  margin-left: 2px;
 }

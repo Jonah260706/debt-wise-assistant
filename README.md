@@ -4,6 +4,17 @@
 
 **URL**: https://lovable.dev/projects/450a1511-4a22-4358-bac8-89e9671bfa16
 
+## OpenRouter Google Gemini Integration
+
+This project includes an AI chatbot powered by OpenRouter's Google Gemini API. To use this feature:
+
+1. Sign up for an [OpenRouter](https://openrouter.ai/) account
+2. Create an API key from the OpenRouter dashboard
+3. Copy the `.env.example` file to `.env` in the project root
+4. Replace `your_openrouter_api_key_here` with your actual OpenRouter API key
+
+Without a valid API key, the chatbot will fall back to simulation mode with predefined responses.
+
 ## How can I edit this code?
 
 There are several ways of editing your application.

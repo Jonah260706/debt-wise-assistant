@@ -25,7 +25,7 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-br from-debt-navy to-debt-slate">
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-violet-900 to-violet-950">
       <header className="p-4 border-b border-debt-slate/30">
         <div className="container max-w-6xl mx-auto">
           <div className="flex items-center justify-between">
@@ -82,21 +82,21 @@ const Index = () => {
           onValueChange={setActiveTab}
           className="w-full"
         >
-          <div className="flex justify-center mb-6">
-            <TabsList className="grid grid-cols-4 w-full max-w-md">
-              <TabsTrigger value="chat" className="flex items-center gap-1">
+          <div className="flex justify-center mb-6 rounded-3xl">
+            <TabsList className="grid grid-cols-4 w-full max-w-md rounded-3xl">
+              <TabsTrigger value="chat" className="flex items-center gap-1 rounded-3xl">
                 <MessageSquare className="h-4 w-4" />
                 <span className="hidden md:inline">Assistant</span>
               </TabsTrigger>
-              <TabsTrigger value="dashboard" className="flex items-center gap-1">
+              <TabsTrigger value="dashboard" className="flex items-center gap-1 rounded-3xl">
                 <BarChart3 className="h-4 w-4" />
                 <span className="hidden md:inline">Dashboard</span>
               </TabsTrigger>
-              <TabsTrigger value="input" className="flex items-center gap-1">
+              <TabsTrigger value="input" className="flex items-center gap-1 rounded-3xl">
                 <FileInput className="h-4 w-4" />
                 <span className="hidden md:inline">Add Debts</span>
               </TabsTrigger>
-              <TabsTrigger value="global" className="flex items-center gap-1">
+              <TabsTrigger value="global" className="flex items-center gap-1 rounded-3xl">
                 <Globe className="h-4 w-4" />
                 <span className="hidden md:inline">Global Data</span>
               </TabsTrigger>

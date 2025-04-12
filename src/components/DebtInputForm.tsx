@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -7,6 +6,8 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/context/AuthContext";
 import { useQuery } from "@tanstack/react-query";
+import { useDebtDashboard } from "@/context/DebtDashboardContext";
+import { addDebt, deleteDebt, DebtItem } from "@/services/debtService";
 
 import {
   Form,
@@ -54,43 +55,11 @@ const debtFormSchema = z.object({
 
 type DebtFormValues = z.infer<typeof debtFormSchema>;
 
-type DebtItem = {
-  id: string;
-  user_id: string;
-  name: string;
-  type: string;
-  amount: number;
-  interest_rate: number;
-  minimum_payment: number;
-  remaining_term: number | null;
-  created_at: string;
-  updated_at: string;
-};
-
 const DebtInputForm = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState<string | null>(null);
   const { user } = useAuth();
-  
-  // Fetch user's debts from Supabase
-  const { data: debts = [], isLoading, refetch } = useQuery({
-    queryKey: ['userDebts'],
-    queryFn: async () => {
-      if (!user) return [];
-      
-      const { data, error } = await supabase
-        .from('debts')
-        .select('*')
-        .order('created_at', { ascending: false });
-      
-      if (error) {
-        console.error('Error fetching debts:', error);
-        throw error;
-      }
-      
-      return data as DebtItem[];
-    },
-    enabled: !!user,
-  });
+  const { debts, isLoading, refreshData } = useDebtDashboard();
 
   const form = useForm<DebtFormValues>({
     resolver: zodResolver(debtFormSchema),
@@ -109,11 +78,9 @@ const DebtInputForm = () => {
       toast.error("You must be logged in to add debts");
       return;
     }
-    
+
     try {
-      // Insert debt into Supabase
-      const { error } = await supabase.from('debts').insert({
-        user_id: user.id,
+      await addDebt(user.id, {
         name: data.name,
         type: data.type,
         amount: data.amount,
@@ -121,19 +88,10 @@ const DebtInputForm = () => {
         minimum_payment: data.minimumPayment,
         remaining_term: data.remainingTerm || null,
       });
-      
-      if (error) {
-        throw error;
-      }
-      
-      // Refresh the debt list
-      refetch();
-      
-      // Show success toast
-      toast.success("Debt added successfully!", {
-        description: `${data.type} debt of $${data.amount} has been added.`,
-      });
-      
+
+      // Refresh the dashboard data
+      refreshData();
+
       // Reset form
       form.reset({
         type: "",
@@ -153,24 +111,30 @@ const DebtInputForm = () => {
 
   const removeDebt = async (id: string) => {
     try {
-      const { error } = await supabase
-        .from('debts')
-        .delete()
-        .eq('id', id);
-      
-      if (error) {
-        throw error;
+      // Prevent multiple delete attempts
+      if (isDeleting) {
+        return;
       }
-      
-      // Refresh the debt list
-      refetch();
-      
-      toast.success("Debt removed successfully!");
+
+      setIsDeleting(id);
+      console.log("Attempting to delete debt with ID:", id);
+
+      const result = await deleteDebt(id);
+
+      if (result) {
+        console.log("Debt deleted successfully, refreshing data");
+        // Wait for the refresh to complete to ensure UI updates
+        await refreshData();
+      } else {
+        console.log("Failed to delete debt");
+      }
     } catch (error) {
       console.error("Error removing debt:", error);
       toast.error("Failed to remove debt", {
-        description: error.message,
+        description: error instanceof Error ? error.message : "Unknown error",
       });
+    } finally {
+      setIsDeleting(null);
     }
   };
 
@@ -190,28 +154,19 @@ const DebtInputForm = () => {
   };
 
   return (
-    <div className="space-y-4">
-      <Collapsible 
-        open={isOpen} 
-        onOpenChange={setIsOpen}
-        className="glass-card rounded-lg"
-      >
+    <div className=" bg-slate-950 rounded-3xl p-6">
+      
         <div className="flex items-center justify-between p-4">
           <div className="flex flex-col">
-            <h2 className="text-lg font-medium">Manage Your Debts</h2>
+            <h2 className="text-3xl font-bold">Manage Your Debts</h2>
             <p className="text-sm text-muted-foreground">
               Add your debts to get personalized insights
             </p>
           </div>
-          <CollapsibleTrigger asChild>
-            <Button variant="ghost" size="sm">
-              <ChevronsUpDown className="h-4 w-4" />
-              <span className="sr-only">Toggle</span>
-            </Button>
-          </CollapsibleTrigger>
+          
         </div>
+
         
-        <CollapsibleContent className="px-4 pb-4">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -221,8 +176,8 @@ const DebtInputForm = () => {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Debt Type</FormLabel>
-                      <Select 
-                        onValueChange={field.onChange} 
+                      <Select
+                        onValueChange={field.onChange}
                         value={field.value}
                       >
                         <FormControl>
@@ -244,7 +199,7 @@ const DebtInputForm = () => {
                     </FormItem>
                   )}
                 />
-                
+
                 <FormField
                   control={form.control}
                   name="name"
@@ -258,7 +213,7 @@ const DebtInputForm = () => {
                     </FormItem>
                   )}
                 />
-                
+
                 <FormField
                   control={form.control}
                   name="amount"
@@ -267,11 +222,11 @@ const DebtInputForm = () => {
                       <FormLabel>Current Balance</FormLabel>
                       <FormControl>
                         <div className="relative">
-                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">$</span>
-                          <Input 
-                            type="number" 
-                            className="pl-6" 
-                            {...field} 
+                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">₹</span>
+                          <Input
+                            type="number"
+                            className="pl-6"
+                            {...field}
                             onChange={(e) => field.onChange(e.target.valueAsNumber)}
                           />
                         </div>
@@ -280,7 +235,7 @@ const DebtInputForm = () => {
                     </FormItem>
                   )}
                 />
-                
+
                 <FormField
                   control={form.control}
                   name="interestRate"
@@ -289,11 +244,11 @@ const DebtInputForm = () => {
                       <FormLabel>Interest Rate</FormLabel>
                       <FormControl>
                         <div className="relative">
-                          <Input 
-                            type="number" 
+                          <Input
+                            type="number"
                             className="pr-6"
                             step="0.01"
-                            {...field} 
+                            {...field}
                             onChange={(e) => field.onChange(e.target.valueAsNumber)}
                           />
                           <span className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground">%</span>
@@ -303,7 +258,7 @@ const DebtInputForm = () => {
                     </FormItem>
                   )}
                 />
-                
+
                 <FormField
                   control={form.control}
                   name="minimumPayment"
@@ -312,11 +267,11 @@ const DebtInputForm = () => {
                       <FormLabel>Minimum Monthly Payment</FormLabel>
                       <FormControl>
                         <div className="relative">
-                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">$</span>
-                          <Input 
-                            type="number" 
-                            className="pl-6" 
-                            {...field} 
+                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">₹</span>
+                          <Input
+                            type="number"
+                            className="pl-6"
+                            {...field}
                             onChange={(e) => field.onChange(e.target.valueAsNumber)}
                           />
                         </div>
@@ -325,7 +280,7 @@ const DebtInputForm = () => {
                     </FormItem>
                   )}
                 />
-                
+
                 <FormField
                   control={form.control}
                   name="remainingTerm"
@@ -333,10 +288,10 @@ const DebtInputForm = () => {
                     <FormItem>
                       <FormLabel>Remaining Term (Months, Optional)</FormLabel>
                       <FormControl>
-                        <Input 
+                        <Input
                           type="number"
                           placeholder="Optional"
-                          {...field} 
+                          {...field}
                           onChange={(e) => {
                             const value = e.target.value === "" ? undefined : e.target.valueAsNumber;
                             field.onChange(value);
@@ -348,13 +303,13 @@ const DebtInputForm = () => {
                   )}
                 />
               </div>
-              
-              <Button 
-                type="submit" 
+
+              <Button
+                type="submit"
                 className="w-full bg-debt-teal hover:bg-debt-bright text-white"
                 disabled={isLoading}
               >
-                <Plus className="mr-2 h-4 w-4" /> 
+                <Plus className="mr-2 h-4 w-4" />
                 Add Debt
               </Button>
             </form>
@@ -385,20 +340,28 @@ const DebtInputForm = () => {
                             </div>
                           </div>
                           <div className="text-right">
-                            <p className="font-bold">${debt.amount}</p>
+                            <p className="font-bold">${debt.amount.toLocaleString()}</p>
                             <p className="text-xs text-muted-foreground">
-                              ${debt.minimum_payment}/month
+                              ${debt.minimum_payment.toLocaleString()}/month
                             </p>
                           </div>
                         </div>
-                        <div className="flex justify-end mt-1">
-                          <Button 
-                            variant="link" 
-                            size="sm" 
-                            className="h-auto p-0 text-xs text-red-400 hover:text-red-300"
+                        <div className="flex justify-between mt-2 border-t border-debt-slate/20 pt-2">
+                          <p className="text-xs text-muted-foreground">
+                            ID: {debt.id.substring(0, 8)}...
+                          </p>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-6 px-2 text-xs text-red-400 hover:text-red-300 hover:bg-red-900/20"
                             onClick={() => removeDebt(debt.id)}
+                            disabled={isDeleting === debt.id}
                           >
-                            Remove
+                            {isDeleting === debt.id ? (
+                              <span className="animate-pulse">Removing...</span>
+                            ) : (
+                              "Remove"
+                            )}
                           </Button>
                         </div>
                       </CardContent>
@@ -407,11 +370,11 @@ const DebtInputForm = () => {
                 </div>
                 {debts.length >= 2 && (
                   <div className="flex justify-center">
-                    <Button 
-                      variant="outline" 
+                    <Button
+                      variant="outline"
                       className="border-debt-teal text-debt-teal hover:bg-debt-teal hover:text-white"
                     >
-                      <CheckCircle2 className="mr-2 h-4 w-4" /> 
+                      <CheckCircle2 className="mr-2 h-4 w-4" />
                       Generate Debt Strategy
                     </Button>
                   </div>
@@ -419,8 +382,8 @@ const DebtInputForm = () => {
               </div>
             )
           )}
-        </CollapsibleContent>
-      </Collapsible>
+        
+      
     </div>
   );
 };
