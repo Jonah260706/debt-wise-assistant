@@ -9,7 +9,102 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      debts: {
+        Row: {
+          amount: number
+          created_at: string
+          id: string
+          interest_rate: number
+          minimum_payment: number
+          name: string
+          remaining_term: number | null
+          type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          id?: string
+          interest_rate: number
+          minimum_payment: number
+          name: string
+          remaining_term?: number | null
+          type: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          id?: string
+          interest_rate?: number
+          minimum_payment?: number
+          name?: string
+          remaining_term?: number | null
+          type?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      global_debt_data: {
+        Row: {
+          corporate_debt_ratio: number | null
+          country: string
+          created_at: string
+          data_source: string | null
+          debt_to_gdp_ratio: number | null
+          government_debt_ratio: number | null
+          household_debt_ratio: number | null
+          id: number
+          year: number
+        }
+        Insert: {
+          corporate_debt_ratio?: number | null
+          country: string
+          created_at?: string
+          data_source?: string | null
+          debt_to_gdp_ratio?: number | null
+          government_debt_ratio?: number | null
+          household_debt_ratio?: number | null
+          id?: number
+          year: number
+        }
+        Update: {
+          corporate_debt_ratio?: number | null
+          country?: string
+          created_at?: string
+          data_source?: string | null
+          debt_to_gdp_ratio?: number | null
+          government_debt_ratio?: number | null
+          household_debt_ratio?: number | null
+          id?: number
+          year?: number
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          first_name: string | null
+          id: string
+          last_name: string | null
+        }
+        Insert: {
+          created_at?: string
+          first_name?: string | null
+          id: string
+          last_name?: string | null
+        }
+        Update: {
+          created_at?: string
+          first_name?: string | null
+          id?: string
+          last_name?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

@@ -4,11 +4,25 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ChatInterface from "@/components/ChatInterface";
 import DebtDashboard from "@/components/DebtDashboard";
 import DebtInputForm from "@/components/DebtInputForm";
+import GlobalDebtChart from "@/components/GlobalDebtChart";
 import { Button } from "@/components/ui/button";
-import { MessageSquare, BarChart3, FileInput } from "lucide-react";
+import { MessageSquare, BarChart3, FileInput, Globe, LogOut } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
+import { toast } from "sonner";
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState("chat");
+  const { user, signOut } = useAuth();
+
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+      toast.success("Signed out successfully");
+    } catch (error) {
+      toast.error("Error signing out");
+      console.error("Sign out error:", error);
+    }
+  };
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-debt-navy to-debt-slate">
@@ -34,7 +48,22 @@ const Index = () => {
                 </li>
               </ul>
             </nav>
-            <Button className="bg-debt-teal hover:bg-debt-bright text-white">Get Started</Button>
+            <div className="flex items-center gap-3">
+              {user && (
+                <span className="text-debt-cream text-sm hidden md:inline-block">
+                  Hi, {user.user_metadata?.first_name || user.email?.split('@')[0]}
+                </span>
+              )}
+              <Button 
+                onClick={handleSignOut} 
+                variant="outline" 
+                size="sm" 
+                className="border-debt-teal text-debt-cream hover:bg-debt-teal hover:text-white"
+              >
+                <LogOut className="h-4 w-4 mr-2" /> 
+                Sign Out
+              </Button>
+            </div>
           </div>
         </div>
       </header>
@@ -54,7 +83,7 @@ const Index = () => {
           className="w-full"
         >
           <div className="flex justify-center mb-6">
-            <TabsList className="grid grid-cols-3 w-full max-w-md">
+            <TabsList className="grid grid-cols-4 w-full max-w-md">
               <TabsTrigger value="chat" className="flex items-center gap-1">
                 <MessageSquare className="h-4 w-4" />
                 <span className="hidden md:inline">Assistant</span>
@@ -66,6 +95,10 @@ const Index = () => {
               <TabsTrigger value="input" className="flex items-center gap-1">
                 <FileInput className="h-4 w-4" />
                 <span className="hidden md:inline">Add Debts</span>
+              </TabsTrigger>
+              <TabsTrigger value="global" className="flex items-center gap-1">
+                <Globe className="h-4 w-4" />
+                <span className="hidden md:inline">Global Data</span>
               </TabsTrigger>
             </TabsList>
           </div>
@@ -80,6 +113,9 @@ const Index = () => {
               </TabsContent>
               <TabsContent value="input">
                 <DebtInputForm />
+              </TabsContent>
+              <TabsContent value="global">
+                <GlobalDebtChart />
               </TabsContent>
             </div>
             
