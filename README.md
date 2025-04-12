@@ -1,8 +1,7 @@
-# Welcome to your Lovable project
+
 
 ## Project info
 
-**URL**: https://lovable.dev/projects/450a1511-4a22-4358-bac8-89e9671bfa16
 
 ## OpenRouter Google Gemini Integration
 
