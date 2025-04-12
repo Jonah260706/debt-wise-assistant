@@ -36,18 +36,14 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ChevronsUpDown, Plus, CheckCircle2, CreditCard, GraduationCap, Home, Car } from "lucide-react";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
+
 
 const debtFormSchema = z.object({
   type: z.string({
     required_error: "Please select a debt type.",
   }),
   name: z.string().min(1, "Name is required"),
-  amount: z.coerce.number().min(1, "Amount must be at least $1."),
+  amount: z.coerce.number().min(1, "Amount must be at least ₹1."),
   interestRate: z.coerce.number().min(0, "Interest rate cannot be negative.").max(100, "Interest rate must be 100% or less."),
   minimumPayment: z.coerce.number().min(0, "Minimum payment cannot be negative."),
   remainingTerm: z.coerce.number().optional(),
@@ -340,9 +336,9 @@ const DebtInputForm = () => {
                             </div>
                           </div>
                           <div className="text-right">
-                            <p className="font-bold">${debt.amount.toLocaleString()}</p>
+                            <p className="font-bold">₹{debt.amount.toLocaleString()}</p>
                             <p className="text-xs text-muted-foreground">
-                              ${debt.minimum_payment.toLocaleString()}/month
+                              ₹{debt.minimum_payment.toLocaleString()}/month
                             </p>
                           </div>
                         </div>

@@ -167,11 +167,7 @@ const ChatInterface = () => {
     }
   };
 
-  // Auto-scroll to bottom on new messages
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
-
+ 
   // Function to check if a message is being typed
   const isMessageTyping = (message: Message): boolean => {
     return !!message.isTyping;

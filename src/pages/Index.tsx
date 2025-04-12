@@ -33,21 +33,9 @@ const Index = () => {
               <div className="bg-debt-bright rounded-lg p-1">
                 <MessageSquare className="h-6 w-6 text-white" />
               </div>
-              <h1 className="text-xl font-bold text-white">DebtWise</h1>
+              <h1 className="text-xl font-bold text-white">कर्जा रे</h1>
             </div>
-            <nav className="hidden md:block">
-              <ul className="flex gap-6">
-                <li>
-                  <Button variant="link" className="text-debt-cream hover:text-debt-bright">Features</Button>
-                </li>
-                <li>
-                  <Button variant="link" className="text-debt-cream hover:text-debt-bright">How It Works</Button>
-                </li>
-                <li>
-                  <Button variant="link" className="text-debt-cream hover:text-debt-bright">About</Button>
-                </li>
-              </ul>
-            </nav>
+            
             <div className="flex items-center gap-3">
               {user && (
                 <span className="text-debt-cream text-sm hidden md:inline-block">

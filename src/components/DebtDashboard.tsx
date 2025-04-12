@@ -14,8 +14,7 @@ import {
   CalendarIcon,
   AlertTriangleIcon,
   CheckCircle2Icon,
-  RefreshCw,
-  DollarSignIcon
+  RefreshCw
 } from "lucide-react";
 import {
   LineChart,
@@ -54,9 +53,7 @@ const DebtDashboard = () => {
 
   // Format currency
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
+    return '₹' + new Intl.NumberFormat('en-IN', {
       maximumFractionDigits: 0,
     }).format(amount);
   };
@@ -95,7 +92,7 @@ const DebtDashboard = () => {
       <Tabs defaultValue="overview" className="w-full">
         <TabsList className="grid grid-cols-2 mb-4 bg-slate-950 rounded-3xl">
           <TabsTrigger value="overview" className="rounded-3xl " onClick={() => setActiveDashboard("overview")}>Overview</TabsTrigger>
-          
+
           <TabsTrigger value="forecast" className="rounded-3xl" onClick={() => setActiveDashboard("forecast")}>Risk Forecast</TabsTrigger>
         </TabsList>
 
@@ -104,8 +101,7 @@ const DebtDashboard = () => {
             <h2 className="text-xl font-bold">Debt Dashboard</h2>
             <div className="flex items-center gap-3">
               <div className="flex items-center">
-                <DollarSignIcon className="h-4 w-4 text-debt-bright mr-1" />
-                <span className="text-sm mr-2">Monthly Income:</span>
+                <span className="text-sm mr-2">Monthly Income (₹):</span>
                 <Input
                   type="number"
                   value={localIncome}
@@ -308,16 +304,11 @@ const DebtDashboard = () => {
           </div>
 
           {/* Analysis Action Cards */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-8 ">
-            <ActionItem 
+          <div className="justify-center ">
+            <ActionItem
               title="Optimize Your Debt Payment Strategy"
               description="Use our AI-powered debt payoff calculator to find the fastest way to become debt-free and save on interest."
               buttonText="Generate Strategy"
-            />
-            <ActionItem 
-              title="Debt Consolidation Analysis"
-              description="Find out if consolidating your debts could save you money and simplify your monthly payments."
-              buttonText="Analyze Options"
             />
           </div>
         </TabsContent>
@@ -420,7 +411,7 @@ const getDebtIcon = (debtType: string) => {
     case 'Auto Loan':
       return <CarIcon className="h-3 w-3" />;
     default:
-      return <DollarSignIcon className="h-3 w-3" />;
+      return <span className="h-3 w-3">₹</span>;
   }
 };
 
